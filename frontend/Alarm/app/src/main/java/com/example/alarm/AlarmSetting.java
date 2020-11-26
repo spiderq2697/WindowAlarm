@@ -44,17 +44,17 @@ public class AlarmSetting extends AppCompatActivity {
         File sdcard = Environment.getExternalStorageDirectory();
         file = new File(sdcard, "capture.jpg");
 
-        imageView = (ImageView) findViewById(R.id.imageView);
+//        imageView = (ImageView) findViewById(R.id.imageView);
 //        surfaceView = (CameraSurfaceView) findViewById(R.id.surfaceview);
 
-        Button picture = (Button) findViewById(R.id.picture);
-        picture.setOnClickListener(new View.OnClickListener(){
-
-            @Override
-            public void onClick(View v) {
-                capture();
-            }
-        });
+//        Button picture = (Button) findViewById(R.id.picture);
+//        picture.setOnClickListener(new View.OnClickListener(){
+//
+//            @Override
+//            public void onClick(View v) {
+//                capture();
+//            }
+//        });
 
 
 
@@ -99,52 +99,70 @@ public class AlarmSetting extends AppCompatActivity {
             }
         });
 
-        // 알람 정지 버튼
-        Button alarm_off = findViewById(R.id.btn_finish);
-        alarm_off.setOnClickListener(new View.OnClickListener(){
-
-            @Override
+        Button button1;
+        button1 = (Button)findViewById(R.id.window1);
+        button1.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v) {
-                Toast.makeText(AlarmSetting.this,"Alarm 종료",Toast.LENGTH_SHORT).show();
-                // 알람매니저 취소
-                alarm_manager.cancel(pendingIntent);
-
-                my_intent.putExtra("state","alarm off");
-
-                // 알람취소
-                sendBroadcast(my_intent);
+                Intent intent = new Intent(AlarmSetting.this, CameraKit.class);
+                startActivity(intent);
             }
         });
+
+        Button button2;
+        button2 = (Button)findViewById(R.id.window2);
+        button2.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v) {
+                Intent intent = new Intent(AlarmSetting.this, CameraKit.class);
+                startActivity(intent);
+            }
+        });
+
+        // 알람 정지 버튼
+//        Button alarm_off = findViewById(R.id.btn_finish);
+//        alarm_off.setOnClickListener(new View.OnClickListener(){
+//
+//            @Override
+//            public void onClick(View v) {
+//                Toast.makeText(AlarmSetting.this,"Alarm 종료",Toast.LENGTH_SHORT).show();
+//                // 알람매니저 취소
+//                alarm_manager.cancel(pendingIntent);
+//
+//                my_intent.putExtra("state","alarm off");
+//
+//                // 알람취소
+//                sendBroadcast(my_intent);
+//            }
+//        });
 
 
     }
 
     //    카메라 어플에서 찍고 사진 가져오기
-    public void capture() {
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if(Build.VERSION.SDK_INT>=24){
-            try{
-                StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-                StrictMode.setVmPolicy(builder.build());
-                builder.detectFileUriExposure();
-            }catch(Exception e){}
-        }
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
-        startActivityForResult(intent, 101);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        //크기를 줄여서 로딩(픽셀제한 걸 수 있음?)
-        if(requestCode == 101 && resultCode == Activity.RESULT_OK){
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inSampleSize = 8;
-            Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
-            imageView.setImageBitmap(bitmap);
-        }
-    }
+//    public void capture() {
+//        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//        if(Build.VERSION.SDK_INT>=24){
+//            try{
+//                StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+//                StrictMode.setVmPolicy(builder.build());
+//                builder.detectFileUriExposure();
+//            }catch(Exception e){}
+//        }
+//        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
+//        startActivityForResult(intent, 101);
+//    }
+//
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//
+//        //크기를 줄여서 로딩(픽셀제한 걸 수 있음?)
+//        if(requestCode == 101 && resultCode == Activity.RESULT_OK){
+//            BitmapFactory.Options options = new BitmapFactory.Options();
+//            options.inSampleSize = 8;
+//            Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
+//            imageView.setImageBitmap(bitmap);
+//        }
+//    }
 
 //    public void capture(){
 //        surfaceView.capture(new Camera.PictureCallback() {
