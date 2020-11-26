@@ -125,45 +125,45 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    //카메라 어플에서 찍고 사진 가져오기
-//    public void capture() {
-//        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//        if(Build.VERSION.SDK_INT>=24){
-//            try{
-//                StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-//                StrictMode.setVmPolicy(builder.build());
-//                builder.detectFileUriExposure();
-//            }catch(Exception e){}
-//        }
-//        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
-//        startActivityForResult(intent, 101);
-//    }
-//
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//
-//        //크기를 줄여서 로딩(픽셀제한 걸 수 있음?)
-//        if(requestCode == 101 && resultCode == Activity.RESULT_OK){
-//            BitmapFactory.Options options = new BitmapFactory.Options();
-//            options.inSampleSize = 8;
-//            Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
-//            imageView.setImageBitmap(bitmap);
-//        }
-//    }
-
-    public void capture(){
-        surfaceView.capture(new Camera.PictureCallback() {
-            @Override
-            public void onPictureTaken(byte[] data, Camera camera) {
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inSampleSize = 8;
-                Bitmap bitmap = decodeByteArray(data, 0, data.length);
-
-                imageView.setImageBitmap(bitmap);
-
-                camera.startPreview();
-            }
-        });
+//    카메라 어플에서 찍고 사진 가져오기
+    public void capture() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if(Build.VERSION.SDK_INT>=24){
+            try{
+                StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+                StrictMode.setVmPolicy(builder.build());
+                builder.detectFileUriExposure();
+            }catch(Exception e){}
+        }
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
+        startActivityForResult(intent, 101);
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        //크기를 줄여서 로딩(픽셀제한 걸 수 있음?)
+        if(requestCode == 101 && resultCode == Activity.RESULT_OK){
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = 8;
+            Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
+            imageView.setImageBitmap(bitmap);
+        }
+    }
+
+//    public void capture(){
+//        surfaceView.capture(new Camera.PictureCallback() {
+//            @Override
+//            public void onPictureTaken(byte[] data, Camera camera) {
+//                BitmapFactory.Options options = new BitmapFactory.Options();
+//                options.inSampleSize = 8;
+//                Bitmap bitmap = decodeByteArray(data, 0, data.length);
+//
+//                imageView.setImageBitmap(bitmap);
+//
+//                camera.startPreview();
+//            }
+//        });
+//    }
 }
