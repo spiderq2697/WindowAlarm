@@ -60,12 +60,10 @@ public class SettingPage extends AppCompatActivity {
                 // reveiver에 string 값 넘겨주기
                 my_intent.putExtra("state","alarm on");
 
-                pendingIntent = PendingIntent.getBroadcast(SettingPage.this, 0, my_intent,
-                        PendingIntent.FLAG_UPDATE_CURRENT);
+                pendingIntent = PendingIntent.getBroadcast(SettingPage.this, 0, my_intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
                 // 알람셋팅
-                alarm_manager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-                        pendingIntent);
+                alarm_manager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
             }
         });
 

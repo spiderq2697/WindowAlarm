@@ -10,8 +10,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <receiver android:name=".Alarm_Reciver" />
-        <activity android:name=".SettingPage"></activity>
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"></activity>
+        <activity android:name=".SettingPage">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
