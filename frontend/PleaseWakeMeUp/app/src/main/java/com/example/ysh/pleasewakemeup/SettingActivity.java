@@ -15,7 +15,7 @@ import android.widget.Toast;
 
 import java.util.Calendar;
 
-public class SettingActivity extends AppCompatActivity{
+public class SettingActivity extends AppCompatActivity {
 
     AlarmManager alarm_manager;
     TimePicker alarm_timepicker;
@@ -55,10 +55,10 @@ public class SettingActivity extends AppCompatActivity{
                 // 시간 가져옴
                 int hour = alarm_timepicker.getHour();
                 int minute = alarm_timepicker.getMinute();
-                Toast.makeText(SettingActivity.this,"Alarm 예정 " + hour + "시 " + minute + "분",Toast.LENGTH_SHORT).show();
+                Toast.makeText(SettingActivity.this, "Alarm 예정 " + hour + "시 " + minute + "분", Toast.LENGTH_SHORT).show();
 
                 // reveiver에 string 값 넘겨주기
-                my_intent.putExtra("state","alarm on");
+                my_intent.putExtra("state", "alarm on");
 
                 pendingIntent = PendingIntent.getBroadcast(SettingActivity.this, 0, my_intent,
                         PendingIntent.FLAG_UPDATE_CURRENT);
@@ -69,20 +69,43 @@ public class SettingActivity extends AppCompatActivity{
             }
         });
 
-        // 알람 정지 버튼
-        Button alarm_off = findViewById(R.id.btn_finish);
-        alarm_off.setOnClickListener(new View.OnClickListener() {
+        Button button1;
+        button1 = (Button) findViewById(R.id.window1);
+        button1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(SettingActivity.this,"Alarm 종료",Toast.LENGTH_SHORT).show();
-                // 알람매니저 취소
-                alarm_manager.cancel(pendingIntent);
-
-                my_intent.putExtra("state","alarm off");
-
-                // 알람취소
-                sendBroadcast(my_intent);
+                Intent intent = new Intent(SettingActivity.this, CameraKit.class);
+                intent.putExtra("CameraMod", 1);
+                startActivity(intent);
             }
         });
+
+        Button button2;
+        button2 = (Button) findViewById(R.id.window2);
+        button2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(SettingActivity.this, CameraKit.class);
+                intent.putExtra("CameraMod", 2);
+                startActivity(intent);
+            }
+        });
+
+        // 알람 정지 버튼
+//        Button alarm_off = findViewById(R.id.btn_finish);
+//        alarm_off.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Toast.makeText(SettingActivity.this,"Alarm 종료",Toast.LENGTH_SHORT).show();
+//                // 알람매니저 취소
+//                alarm_manager.cancel(pendingIntent);
+//
+//                my_intent.putExtra("state","alarm off");
+//
+//                // 알람취소
+//                sendBroadcast(my_intent);
+//            }
+//        });
+//    }
     }
 }

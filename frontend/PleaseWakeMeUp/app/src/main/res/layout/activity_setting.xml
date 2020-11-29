@@ -42,6 +42,20 @@
             android:layout_height="50dp"
             android:id="@+id/btn_finish"
             android:text="종료" />
+        
+        <Button
+            android:id="@+id/window1"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="창문1등록"
+            android:textSize="20dp"/>
+
+        <Button
+            android:id="@+id/window2"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="창문2등록"
+            android:textSize="20dp"/>
 
     </LinearLayout>
 
