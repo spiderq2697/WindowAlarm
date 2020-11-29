@@ -221,12 +221,6 @@ public class CameraKit extends AppCompatActivity {
             }
         });
 
-        @Override
-        public void onVideo(CameraKitVideo cameraKitVideo)
-        {
-
-        }
-    });
 
         imageViewGallery.setOnClickListener(new View.OnClickListener()
     {//누르면 갤러리에서 이미지를 불러와 보여주는 코드
