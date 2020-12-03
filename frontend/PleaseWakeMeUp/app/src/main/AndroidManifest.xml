@@ -9,6 +9,7 @@
     <uses-feature android:name="android.hardware.camera"/>
     <uses-feature android:name="android.hardware.camera.autofocus"/>
     <uses-permission android:name="android.permission.FLASHLIGHT"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
 
 
@@ -26,15 +27,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SettingActivity" >
-
-        </activity>
+        <receiver
+            android:name=".AlarmReceiver"
+            android:enabled="true"
+            android:exported="false"
+            />
+        <activity android:name=".SettingActivity"/>
         <activity android:name=".CameraKit"/>
-        <receiver android:name=".Alarm_Reciver" />
 
         <service
-            android:name=".RingtonePlayingService"
-            android:enabled="true" />
+            android:name=".AlarmService"
+            android:enabled="true"
+            />
     </application>
 
 </manifest>

@@ -1,111 +1,256 @@
 package com.example.ysh.pleasewakemeup;
 
+
 import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
-import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
-import android.support.annotation.RequiresApi;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
 public class SettingActivity extends AppCompatActivity {
 
-    AlarmManager alarm_manager;
-    TimePicker alarm_timepicker;
-    Context context;
-    PendingIntent pendingIntent;
+    private AlarmManager alarmManager;
+    private TimePicker timePicker;
+
+    private PendingIntent pendingIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
 
-        this.context = this;
+        this.alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        this.timePicker = findViewById(R.id.timePicker);
 
-        // 알람매니저 설정
-        alarm_manager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        findViewById(R.id.btnStart).setOnClickListener(mClickListener);
+        findViewById(R.id.btnStop).setOnClickListener(mClickListener);
 
-        // 타임피커 설정
-        alarm_timepicker = findViewById(R.id.time_picker);
+        File WindowFolder = new File(getExternalFilesDir(null) + "/WindowAlarm");
+        File Window1 = new File(WindowFolder, "Window1.jpg");
+        File Window2 = new File(WindowFolder, "Window2.jpg");
 
-        // Calendar 객체 생성
-        final Calendar calendar = Calendar.getInstance();
+        Button button1 = (Button) findViewById(R.id.window1);
+        Button button2 = (Button) findViewById(R.id.window2);
+        Button button3 = (Button) findViewById(R.id.alarmTest);
+        Button button4 = (Button) findViewById(R.id.Rwindow1);
+        Button button5 = (Button) findViewById(R.id.Rwindow2);
 
-        // 알람리시버 intent 생성
-        final Intent my_intent = new Intent(this.context, Alarm_Reciver.class);
+        if(Window1.exists())
+        {
+            button2.setEnabled(true);
+            button3.setEnabled(true);
+            button4.setEnabled(true);
+        }
+        else
+        {
+            button2.setEnabled(false);
+            button3.setEnabled(false);
+            button4.setEnabled(false);
+        }
 
-        // 알람 시작 버튼
-        Button alarm_on = findViewById(R.id.btn_start);
-        alarm_on.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.M)
+        if(Window2.exists())
+        {
+            button5.setEnabled(true);
+        }
+        else
+        {
+            button5.setEnabled(false);
+        }
+
+        button1.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View v) {
-
-                // calendar에 시간 셋팅
-                calendar.set(Calendar.HOUR_OF_DAY, alarm_timepicker.getHour());
-                calendar.set(Calendar.MINUTE, alarm_timepicker.getMinute());
-
-                // 시간 가져옴
-                int hour = alarm_timepicker.getHour();
-                int minute = alarm_timepicker.getMinute();
-                Toast.makeText(SettingActivity.this, "Alarm 예정 " + hour + "시 " + minute + "분", Toast.LENGTH_SHORT).show();
-
-                // reveiver에 string 값 넘겨주기
-                my_intent.putExtra("state", "alarm on");
-
-                pendingIntent = PendingIntent.getBroadcast(SettingActivity.this, 0, my_intent,
-                        PendingIntent.FLAG_UPDATE_CURRENT);
-
-                // 알람셋팅
-                alarm_manager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-                        pendingIntent);
-            }
-        });
-
-        Button button1;
-        button1 = (Button) findViewById(R.id.window1);
-        button1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            public void onClick(View v)
+            {
                 Intent intent = new Intent(SettingActivity.this, CameraKit.class);
                 intent.putExtra("CameraMod", 1);
                 startActivity(intent);
             }
         });
 
-        Button button2;
-        button2 = (Button) findViewById(R.id.window2);
-        button2.setOnClickListener(new View.OnClickListener() {
+        button2.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v)
+            {
                 Intent intent = new Intent(SettingActivity.this, CameraKit.class);
                 intent.putExtra("CameraMod", 2);
                 startActivity(intent);
             }
         });
 
-        // 알람 정지 버튼
-//        Button alarm_off = findViewById(R.id.btn_finish);
-//        alarm_off.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Toast.makeText(SettingActivity.this,"Alarm 종료",Toast.LENGTH_SHORT).show();
-//                // 알람매니저 취소
-//                alarm_manager.cancel(pendingIntent);
-//
-//                my_intent.putExtra("state","alarm off");
-//
-//                // 알람취소
-//                sendBroadcast(my_intent);
-//            }
-//        });
-//    }
+        button3.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                Intent intent = new Intent(SettingActivity.this, CameraKit.class);
+                intent.putExtra("CameraMod", 0);
+                startActivity(intent);
+            }
+        });
+
+        button4.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                showDialog();
+            }
+
+            private void showDialog()
+            {
+                AlertDialog.Builder msgBuilder = new AlertDialog.Builder(SettingActivity.this)
+                        .setTitle("창문1 삭제...")
+                        .setMessage("창문1을 삭제 합니다.")
+                        .setPositiveButton("삭제", new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                Window1.delete();
+                                button2.setEnabled(false);
+                                button3.setEnabled(false);
+                                button4.setEnabled(false);
+                                Toast.makeText(getApplicationContext(), "창문1 삭제."
+                                        , Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .setNegativeButton("취소", new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                Toast.makeText(getApplicationContext(), "창문1 삭제 취소."
+                                        , Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                AlertDialog msgDlg = msgBuilder.create();
+                msgDlg.show();
+            }
+        });
+
+        button5.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                showDialog();
+            }
+
+            private void showDialog()
+            {
+                AlertDialog.Builder msgBuilder = new AlertDialog.Builder(SettingActivity.this)
+                        .setTitle("창문2 삭제...")
+                        .setMessage("창문2을 삭제 합니다.")
+                        .setPositiveButton("삭제", new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                Window2.delete();
+                                button5.setEnabled(false);
+                                Toast.makeText(getApplicationContext(), "창문2 삭제."
+                                        , Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .setNegativeButton("취소", new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                Toast.makeText(getApplicationContext(), "창문2 삭제 취소."
+                                        , Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                AlertDialog msgDlg = msgBuilder.create();
+                msgDlg.show();
+            }
+        });
+    }
+
+    /* 알람 시작 */
+    private void start() {
+        // 시간 설정
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.set(Calendar.HOUR_OF_DAY, this.timePicker.getHour());
+        calendar.set(Calendar.MINUTE, this.timePicker.getMinute());
+        calendar.set(Calendar.SECOND, 0);
+
+        // 현재시간보다 이전이면
+        if (calendar.before(Calendar.getInstance())) {
+            // 다음날로 설정
+            calendar.add(Calendar.DATE, 1);
+        }
+
+        // Receiver 설정
+        Intent intent = new Intent(this, AlarmReceiver.class);
+        // state 값이 on 이면 알람시작, off 이면 중지
+        intent.putExtra("state", "on");
+
+        this.pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        // 알람 설정
+        this.alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+
+        // Toast 보여주기 (알람 시간 표시)
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        Toast.makeText(this, "Alarm : " + format.format(calendar.getTime()), Toast.LENGTH_SHORT).show();
+    }
+
+    /* 알람 중지 */
+    private void stop() {
+        if (this.pendingIntent == null) {
+            return;
+        }
+
+        // 알람 취소
+        this.alarmManager.cancel(this.pendingIntent);
+
+        // 알람 중지 Broadcast
+        Intent intent = new Intent(this, AlarmReceiver.class);
+        intent.putExtra("state","off");
+
+        sendBroadcast(intent);
+
+        this.pendingIntent = null;
+    }
+
+    View.OnClickListener mClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()) {
+                case R.id.btnStart:
+                    // 알람 시작
+                    start();
+
+                    break;
+                case R.id.btnStop:
+                    // 알람 중지
+                    stop();
+
+                    break;
+            }
+        }
+    };
+
+
+    @Override
+    protected void onRestart()
+    {
+        super.onRestart();
+        recreate();
     }
 }

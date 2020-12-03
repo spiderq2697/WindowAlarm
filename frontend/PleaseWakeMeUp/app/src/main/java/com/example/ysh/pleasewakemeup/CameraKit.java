@@ -1,7 +1,5 @@
 package com.example.ysh.pleasewakemeup;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.database.Cursor;
@@ -9,7 +7,6 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
@@ -24,6 +21,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -39,15 +37,18 @@ import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
-
 import org.opencv.core.DMatch;
 import org.opencv.core.MatOfDMatch;
+import org.opencv.core.MatOfFloat;
+import org.opencv.core.MatOfInt;
 import org.opencv.core.MatOfKeyPoint;
 import org.opencv.core.Rect;
 import org.opencv.features2d.DescriptorExtractor;
 import org.opencv.features2d.DescriptorMatcher;
 import org.opencv.features2d.FeatureDetector;
+import org.opencv.imgproc.Imgproc;
 
 public class CameraKit extends AppCompatActivity
 {
@@ -82,11 +83,10 @@ public class CameraKit extends AppCompatActivity
 
     private ImageView imageViewCheck;
 
-    private Bitmap b1;//카메라에서 찍은 사진을 담을 변수
-    private Bitmap b2;//이미 찍은 장문 이미지(1,000 x 1,000)
+    private Bitmap b1;
+    private Bitmap b2;
 
     private final static String TAG = CameraKit.class.getClass().getSimpleName();
-    private boolean isOpenCvLoaded = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -119,6 +119,36 @@ public class CameraKit extends AppCompatActivity
             textViewGallery.setVisibility(View.INVISIBLE);
             imageViewResult.setVisibility(View.INVISIBLE);
             textViewResult.setVisibility(View.INVISIBLE);
+        }
+        else if(cameraMod == AlarmCallMod)
+        {
+            imageViewGallery.setVisibility(View.INVISIBLE);
+            textViewGallery.setVisibility(View.INVISIBLE);
+            imageViewCheck.setVisibility(View.INVISIBLE);
+
+            File WindowFolder = new File(getExternalFilesDir(null) + "/WindowAlarm");
+            File Window1 = new File(WindowFolder, "Window1.jpg");
+            File Window2 = new File(WindowFolder, "Window2.jpg");
+            if(Window1.exists())
+            {
+                b2 = BitmapFactory.decodeFile(getExternalFilesDir(null)
+                        + "/WindowAlarm/Window1.jpg");
+                imageViewResult.setImageBitmap(b2);
+                textViewResult.setText("<- 1번째 (창)문을 찍어주세요.");
+                if(Window2.exists())
+                {
+                    RemainingShots = 2;
+                }
+                else
+                {
+                    RemainingShots = 1;
+                }
+            }
+            else
+            {
+                Toast.makeText(getApplicationContext(), "(창)문을 먼저 등록하세요.", Toast.LENGTH_LONG).show();
+                finish();
+            }
         }
         else
         {
@@ -176,57 +206,61 @@ public class CameraKit extends AppCompatActivity
                     l1 = b1.getHeight();
                 }
 
-                /*
-                Mat gray = new Mat();
-                Utils.bitmapToMat(bitmap, gray);
-
-                Imgproc.cvtColor(gray, gray, Imgproc.COLOR_RGBA2GRAY);
-
-                Bitmap grayBitmap = Bitmap.createBitmap(gray.cols(), gray.rows(), null);
-                Utils.matToBitmap(gray, grayBitmap);
-                bitmap = grayBitmap;
-                */
-                //이미지를 흑백으로 바꾸는데 쓴 코드
-
                 Mat image_original = new Mat();
                 Utils.bitmapToMat(b1, image_original);
-                Rect rectCrop = new Rect(x1, y1, l1, l1);//OpenCv의 Rect
+                Rect rectCrop = new Rect(x1, y1, l1, l1);
                 Mat image_output = new Mat(image_original, rectCrop);
                 Bitmap croppedBitmap = Bitmap.createBitmap(image_output.cols(), image_output.rows(), null);
                 Utils.matToBitmap(image_output, croppedBitmap);
                 b1 = croppedBitmap;
-                //이미지를 특정 부분민큼 자르고 그 부분을 저장하는 코드
 
                 Bitmap bitmap = b1;
                 bitmap = Bitmap.createScaledBitmap(bitmap, INPUT_SIZE, INPUT_SIZE, true);
                 final List<Classifier.Recognition> results = classifier.recognizeImage(bitmap);
 
                 b1 = Bitmap.createScaledBitmap(b1, 1000, 1000, true);
-                imageViewResult.setImageBitmap(b1);
-                textViewResult.setText(results.toString());
-
-                if(cameraMod != TestMod)
+                if(cameraMod == TestMod)
+                {
+                    imageViewResult.setImageBitmap(b1);
+                    textViewResult.setText(results.toString());
+                }
+                else
                 {
                     String s1 = "";
+
+                    DetectLoop:
                     for(int i = 0; i < results.size(); i++)
                     {
                         s1 = results.get(i).toString();
-                        if(s1.contains("notebook") || s1.contains("laptop"))//해당 물체가 발견되면...
+                        if(s1.contains("notebook") || s1.contains("laptop"))///
                         {
                             if(cameraMod == AlarmCallMod)
                             {
-                                if(RemainingShots == 1)
+                                int r1 = compareHistogram(b1, b2);
+                                if(r1 > 0)
                                 {
-                                    Toast.makeText(getApplicationContext(), "등록된 (창)문이 모두 찍혔습니다."
-                                            , Toast.LENGTH_LONG).show();
-                                    RemainingShots -= 1;
-                                    //그 후, 알람 종료...???
+                                    if(RemainingShots == 1)
+                                    {
+                                        Toast.makeText(getApplicationContext(), "등록된 (창)문이 모두 찍혔습니다."
+                                                , Toast.LENGTH_LONG).show();
+                                        finish();
+                                    }
+                                    else if(RemainingShots == 2)
+                                    {
+                                        Toast.makeText(getApplicationContext(), "1번째 (창)문 완료, 2번째를 찍어주세요."
+                                                , Toast.LENGTH_LONG).show();
+                                        b2 = BitmapFactory.decodeFile(getExternalFilesDir(null)
+                                                + "/WindowAlarm/Window2.jpg");
+                                        imageViewResult.setImageBitmap(b2);
+                                        textViewResult.setText("<- 2번째 (창)문을 찍어주세요.");
+                                        RemainingShots = 1;
+                                        break DetectLoop;
+                                    }
                                 }
-                                else if(RemainingShots == 2)
+                                else
                                 {
-                                    Toast.makeText(getApplicationContext(), "1번째 (창)문 완료, 2번째를 찍어주세요."
-                                            , Toast.LENGTH_LONG).show();
-                                    RemainingShots -= 1;
+                                    Toast.makeText(getApplicationContext(), "올바른 (창)문을 찍어주세요."
+                                            , Toast.LENGTH_SHORT).show();
                                 }
                             }
                             else
@@ -261,6 +295,7 @@ public class CameraKit extends AppCompatActivity
                                     imageViewCheck.setImageBitmap(b1);
                                     Toast.makeText(getApplicationContext(), "1번째 (창)문 저장 완료, 나가셔도 됩니다."
                                             , Toast.LENGTH_LONG).show();
+                                    break DetectLoop;
                                 }
                                 else if(cameraMod == Window2Mod)
                                 {
@@ -286,13 +321,14 @@ public class CameraKit extends AppCompatActivity
                                     imageViewCheck.setImageBitmap(b1);
                                     Toast.makeText(getApplicationContext(), "2번째 (창)문 저장 완료, 나가셔도 됩니다."
                                             , Toast.LENGTH_LONG).show();
+                                    break DetectLoop;
                                 }
                             }
                         }
                         else
                         {
                             Toast.makeText(getApplicationContext(), "(창)문이 찍히지 않았습니다, 다시 찍어 주세요."
-                                    , Toast.LENGTH_LONG).show();
+                                    , Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
@@ -306,7 +342,7 @@ public class CameraKit extends AppCompatActivity
         });
 
         imageViewGallery.setOnClickListener(new View.OnClickListener()
-                                            {//누르면 갤러리에서 이미지를 불러와 보여주는 코드
+        {
             @Override
             public void onClick(View v)
             {
@@ -314,22 +350,21 @@ public class CameraKit extends AppCompatActivity
                 intent.setDataAndType(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
                 startActivityForResult(intent, REQUEST_CODE);
             }
-                                            }
-        );
+        });
         textViewGallery.setOnClickListener(new View.OnClickListener()
-        {//갤러리에서 이미지가 로드되면 그 파일의 결로를 표시 + 누르면 이미지 비교 실행
+        {
             @Override
             public void onClick(View v)
             {
                 if(textViewGallery.getText().toString().equals("<- Load the image first."))
                 {
-                    Toast.makeText(getApplicationContext(), "이미지를 먼저 불러와 주세요.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "이미지를 먼저 불러와 주세요.", Toast.LENGTH_SHORT).show();
                 }
                 else
                 {
                     cameraView.captureImage();
 
-                    AssetManager assetmanager = getAssets();
+                    /*AssetManager assetmanager = getAssets();
                     InputStream is;
                     try
                     {
@@ -340,11 +375,10 @@ public class CameraKit extends AppCompatActivity
                     }
                     catch(IOException e)
                     {
-                        e.printStackTrace();//'assets'에서 파일 불러오기
-                    }
+                        e.printStackTrace();
+                    }*/
 
-                    int ret = 999;
-                    ret = compareFeature(b1, b2);
+                    int ret = compareHistogram(b1, b2);
                     textViewGallery.setText("retVal: " + ret);
                 }
             }
@@ -357,8 +391,7 @@ public class CameraKit extends AppCompatActivity
             {
                 cameraView.toggleFacing();
             }
-        }
-        );
+        });
 
         btnDetectObject.setOnClickListener(new View.OnClickListener()
         {
@@ -367,13 +400,11 @@ public class CameraKit extends AppCompatActivity
             {
                 cameraView.captureImage();
             }
-        }
-        );
+        });
 
         initTensorFlowAndLoadModel();
     }
 
-    // LoaderCallback
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this)
     {
         @Override
@@ -403,11 +434,10 @@ public class CameraKit extends AppCompatActivity
             OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION, this, mLoaderCallback);
         }
         else
-            {
+        {
             Log.d(TAG, "OpenCV library found inside package. Using it!");
             mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
-            isOpenCvLoaded = true;
-            }
+        }
     }
 
     @Override
@@ -428,8 +458,7 @@ public class CameraKit extends AppCompatActivity
             {
                 classifier.close();
             }
-        }
-        );
+        });
     }
 
     private void initTensorFlowAndLoadModel()
@@ -469,15 +498,14 @@ public class CameraKit extends AppCompatActivity
             {
                 btnDetectObject.setVisibility(View.VISIBLE);
             }
-        }
-        );
+        });
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE)//갤러리에서 가져온 이미지 + 그 파일의 경로 표시
+        if (requestCode == REQUEST_CODE)
         {
             if (resultCode == RESULT_OK)
             {
@@ -496,16 +524,11 @@ public class CameraKit extends AppCompatActivity
                 imageViewGallery.setImageBitmap(b2);
                 textViewGallery.setText(realPath);
             }
-            else if (resultCode == RESULT_CANCELED)
-            {
-                Toast.makeText(this, "사진 선택 취소", Toast.LENGTH_LONG).show();
-            }
         }
     }
 
     protected String getRealPath(Uri uri)
     {
-
         Cursor cursor = getContentResolver().
                 query(uri, null, null, null, null );
 
@@ -516,69 +539,68 @@ public class CameraKit extends AppCompatActivity
         cursor.close();
 
         return path;
-
     }
 
-    protected static int compareFeature(Bitmap CameraPhoto, Bitmap GalleryPhoto)
+    protected static int compareHistogram(Bitmap CameraPhoto, Bitmap GalleryPhoto)
     {
         int retVal = 0;
 
-        // Load images to compare
         Mat img1 = new Mat();
         Utils.bitmapToMat(CameraPhoto, img1);
         Mat img2 = new Mat();
         Utils.bitmapToMat(GalleryPhoto, img2);
 
-        // Declare key point of images
-        MatOfKeyPoint keypoints1 = new MatOfKeyPoint();
-        MatOfKeyPoint keypoints2 = new MatOfKeyPoint();
-        Mat descriptors1 = new Mat();
-        Mat descriptors2 = new Mat();
+        Mat hsvImg1 = new Mat();
+        Mat hsvImg2 = new Mat();
 
-        // Definition of ORB key point detector and descriptor extractors
-        FeatureDetector detector = FeatureDetector.create(FeatureDetector.ORB);
-        DescriptorExtractor extractor = DescriptorExtractor.create(DescriptorExtractor.ORB);
+        Imgproc.cvtColor(img1, hsvImg1, Imgproc.COLOR_BGR2HSV);
+        Imgproc.cvtColor(img2, hsvImg2, Imgproc.COLOR_BGR2HSV);
 
-        // Detect key points
-        detector.detect(img1, keypoints1);
-        detector.detect(img2, keypoints2);
+        List<Mat> listImg1 = new ArrayList<Mat>();
+        List<Mat> listImg2 = new ArrayList<Mat>();
 
-        // Extract descriptors
-        extractor.compute(img1, keypoints1, descriptors1);
-        extractor.compute(img2, keypoints2, descriptors2);
+        listImg1.add(hsvImg1);
+        listImg2.add(hsvImg2);
 
-        // Definition of descriptor matcher
-        DescriptorMatcher matcher = DescriptorMatcher.create(DescriptorMatcher.BRUTEFORCE_HAMMING);
+        MatOfFloat ranges = new MatOfFloat(0,255);
+        MatOfInt histSize = new MatOfInt(50);
+        MatOfInt channels = new MatOfInt(0);
 
-        // Match points of two images
-        MatOfDMatch matches = new MatOfDMatch();
+        Mat histImg1 = new Mat();
+        Mat histImg2 = new Mat();
 
-        // Avoid to assertion failed
-        // Assertion failed (type == src2.type() && src1.cols == src2.cols && (type == CV_32F || type == CV_8U)
-        if (descriptors2.cols() == descriptors1.cols())
+        Imgproc.calcHist(listImg1, channels, new Mat(), histImg1, histSize, ranges);
+        Imgproc.calcHist(listImg2, channels, new Mat(), histImg2, histSize, ranges);
+
+        Core.normalize(histImg1, histImg1, 0, 1, Core.NORM_MINMAX, -1, new Mat());
+        Core.normalize(histImg2, histImg2, 0, 1, Core.NORM_MINMAX, -1, new Mat());
+
+        double result0, result1, result2, result3;
+        result0 = Imgproc.compareHist(histImg1, histImg2, 0);
+        result1 = Imgproc.compareHist(histImg1, histImg2, 1);
+        result2 = Imgproc.compareHist(histImg1, histImg2, 2);
+        result3 = Imgproc.compareHist(histImg1, histImg2, 3);
+
+        int count=0;
+
+        if (result0 > 0.9)
         {
-            matcher.match(descriptors1, descriptors2 ,matches);
-
-            // Check matches of key points
-            DMatch[] match = matches.toArray();
-            double max_dist = 0; double min_dist = 100;
-
-            for (int i = 0; i < descriptors1.rows(); i++)
-            {
-                double dist = match[i].distance;
-                if( dist < min_dist ) min_dist = dist;
-                if( dist > max_dist ) max_dist = dist;
-            }
-
-            // Extract good images (distances are under 10)
-            for (int i = 0; i < descriptors1.rows(); i++)
-            {
-                if (match[i].distance <= 10)
-                {
-                    retVal++;
-                }
-            }
+            count++;
         }
+        if (result1 < 0.1)
+        {
+            count++;
+        }
+        if (result2 > 1.5)
+        {
+            count++;
+        }
+        if (result3 < 0.3)
+        {
+            count++;
+        }
+
+        if (count >= 3) retVal = 1;
 
         return retVal;
     }
