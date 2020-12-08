@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/sky"
+    android:gravity="top"
+    android:orientation="vertical"
+    tools:context=".SettingActivity">
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="434dp"
+        android:layout_height="348dp"
+        android:background="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TimePicker
+            android:id="@+id/timePicker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:headerBackground="@drawable/sky_head"
+            android:numbersSelectorColor="@android:color/holo_orange_dark" />
+
+    </LinearLayout>
+
+    <Switch
+        android:id="@+id/DailyRepeat"
+        android:layout_width="181dp"
+        android:layout_height="34dp"
+        android:layout_marginTop="50dp"
+        android:background="@drawable/select"
+        android:fontFamily="@font/nanumbarunpenr"
+        android:textStyle="bold"
+        android:text="  매일 반복 여부"
+        android:textColor="@android:color/background_light"
+        android:textSize="20dp"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout2"
+        tools:ignore="MissingConstraints" />
+
+    <Button
+        android:id="@+id/btnStart"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="372dp"
+        android:background="@drawable/button"
+        android:fontFamily="@font/nanumbarunpenr"
+        android:textStyle="bold"
+        android:text="알람등록"
+        android:textColor="@android:color/background_light"
+
+        android:textSize="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btnStop"
+        app:layout_constraintStart_toStartOf="@+id/DailyRepeat"
+        app:layout_constraintTop_toBottomOf="@+id/DailyRepeat"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/btnStop"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginBottom="372dp"
+        android:background="@drawable/button"
+        android:fontFamily="@font/nanumbarunpenr"
+        android:textStyle="bold"
+        android:text="알람삭제"
+        android:textColor="@android:color/background_light"
+        android:textSize="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/DailyRepeat"
+        app:layout_constraintStart_toEndOf="@+id/btnStart"
+        app:layout_constraintTop_toBottomOf="@+id/DailyRepeat"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/window1"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/button"
+        android:fontFamily="@font/nanumbarunpenr"
+        android:textStyle="bold"
+        android:text="창문1등록"
+        android:textColor="@android:color/background_light"
+        android:textSize="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/Rwindow1"
+        app:layout_constraintStart_toStartOf="@+id/btnStart"
+        app:layout_constraintTop_toBottomOf="@+id/btnStart"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/Rwindow1"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/button"
+        android:fontFamily="@font/nanumbarunpenr"
+        android:textStyle="bold"
+        android:text="창문1 제거"
+        android:textColor="@android:color/background_light"
+        android:textSize="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/btnStop"
+        app:layout_constraintStart_toEndOf="@+id/window1"
+        app:layout_constraintTop_toBottomOf="@+id/btnStop"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/window2"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/button"
+        android:fontFamily="@font/nanumbarunpenr"
+        android:textStyle="bold"
+        android:text="창문2등록"
+        android:textColor="@android:color/background_light"
+        android:textSize="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/Rwindow2"
+        app:layout_constraintStart_toStartOf="@+id/window1"
+        app:layout_constraintTop_toBottomOf="@+id/window1"
+        app:layout_constraintVertical_bias="0.04" />
+
+    <Button
+        android:id="@+id/Rwindow2"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/button"
+        android:fontFamily="@font/nanumbarunpenr"
+        android:textStyle="bold"
+        android:text="창문2 제거"
+        android:textColor="@android:color/background_light"
+        android:textSize="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/Rwindow1"
+        app:layout_constraintStart_toEndOf="@+id/window2"
+        app:layout_constraintTop_toBottomOf="@+id/Rwindow1"
+        app:layout_constraintVertical_bias="0.04" />
+
+
+</android.support.constraint.ConstraintLayout>
